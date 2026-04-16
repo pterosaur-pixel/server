@@ -85,8 +85,14 @@ with socket.socket() as s:
 				if c in readable:
 					cdata = decrypt(c.recv(1024).decode())
 					#print("got data")
-					if cdata != None and not closed1:
+					if cdata != None and not closed1 and c2 != None:
 						print(cdata)
+						#try:
+							#print("sending")
+						c2.send(encrypt(cdata2)).encode()
+						print("sending")
+						#except:
+						c.send(encrypt("Sorry, client2 is not connected").encode())
 						data += cdata
 			except:
 				pass
@@ -105,6 +111,10 @@ with socket.socket() as s:
 					print("got data 2")
 					if cdata2 != None and not closed2:
 						print(cdata2)
+						try:
+							c.send(encrypt(cdata2).encode())
+						except:
+							c2.send(encrypt("Sorry, client1 is not connected").encode())
 						data2 += cdata2
 			except:
 				pass

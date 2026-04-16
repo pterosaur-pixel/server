@@ -1,5 +1,7 @@
 import socket
 import time
+import threading
+import signal
 def encrypt(string):
 	letters = list(string)
 	enc = ""
@@ -23,11 +25,25 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
+def listenTo(s):
+	while True:
+		s.settimeout(0.5)
+		try:
+			print(decrypt(s.recv(1024).decode()))
+		except:
+			pass
+
+def getMess(inp):
+	while True:
+		s.send(encrypt(inp).encode())
+		inp =input("Message: ")
+		if inp == "$close":
+			return
+
+
 with  socket.socket() as s:
-	#s.setblocking(False)
 	port = 12348
 	s.connect(("127.0.0.1", port))
-	#s.setblocking(False)
 	rec = False
 	while not rec:
 		try:
@@ -35,15 +51,18 @@ with  socket.socket() as s:
 			rec = True
 		except:
 			pass
-	#print(s.getblocking())
 	s.send(encrypt("Thank you for hosting").encode())
 	time.sleep(0.25)
 	s.send(encrypt("Thank you again").encode())
 	inp = input("Message: ")
+	t1 = threading.Thread(target = getMess, args = (inp,))
+	t1.start()
 	while inp != "$close":
-		s.send(encrypt(inp).encode())
-		inp = input("Messsage: ")
+		s.settimeout(0.5)
+		try:
+			print(decrypt(s.recv(1024).decode()))
+		except:
+			pass
 	time.sleep(0.25)
+	t1.join()
 	s.send(encrypt("close").encode())
-#	while True:
-#		cdata = s.recv(1024).decode()
