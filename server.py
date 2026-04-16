@@ -1,4 +1,5 @@
 import ipaddress
+import threading
 import socket
 import select
 data = "This is the data: "
@@ -25,104 +26,20 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
+def clientThread(c):
+	while True:
+		cdata = decrypt(c.recv(1024).decode())
+		print(cdata)
+
 with socket.socket() as s:
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	#s.setblocking(False)
 	print(s.getblocking())
 	port = 12348
 	s.bind(("", port))
 	print("socket binded")
 	s.listen(2)
-#	got1 = False
-#	while not got1:
-#		try:
-	c, addr = s.accept()
-#	got1 = True
-	#	except:
-#		pass
-#	got2 = False
-#	while not got2:
-	s.settimeout(0.1)
-	try:
-		c2, addr2 = s.accept()
-		print(c2)
-#	got2 = True
-	except:
-		c2 = None
-	print("got connection from",  addr)
-
-	c.send(encrypt("Thank you for connecting").encode())
-	if c2 != None:
-		c2.send(encrypt("Thank you for connecting").encode())
-		print("got conn from", addr2)
-	cdata = decrypt(c.recv(1024).decode())
-	try:
-		decrypt(cdata2 = c2.recv(1024).decode())
-	except:
-		cdata2 = None
-	print("cdata")
-	print(cdata)
-	print(cdata2)
-	closed1 = False
-	closed2 = False
-	#for i in range(0, 2):
-	while cdata.strip("\n") != "close" or (cdata2 != None and cdata2.strip("\n") != "close"):
-		if c2 == None:
-			s.settimeout(0.1)
-			try:
-				c2, addr2 = s.accept()
-				c2.send(encrypt("Thank you for connecting").encode())
-				print("got conn from", addr2)
-				cdata2 = decrypt(c2.recv(1024).decode())
-				closed2 = False
-			except:
-				c2 = None
-		if cdata.strip("\n") != "close":
-			try:
-				#print(1)
-				readable,_,_ = select.select([c], [],[], 0.1)
-				#print(readable)
-				if c in readable:
-					cdata = decrypt(c.recv(1024).decode())
-					#print("got data")
-					if cdata != None and not closed1 and c2 != None:
-						print(cdata)
-						#try:
-							#print("sending")
-						c2.send(encrypt(cdata2)).encode()
-						print("sending")
-						#except:
-						c.send(encrypt("Sorry, client2 is not connected").encode())
-						data += cdata
-			except:
-				pass
-		else:
-			closed1 = True
-		#print(closed2)
-		if c2 != None and cdata2.strip("\n") != "close" and not closed2:
-			try:
-				#print("Could read from client number 2")
-				readable,_,_ = select.select([c2], [], [], 0.1)
-				#print(2)
-				#print(readable)
-				if c2 in readable:
-					#print("print reading number 2")
-					cdata2 = decrypt(c2.recv(1024).decode())
-					print("got data 2")
-					if cdata2 != None and not closed2:
-						print(cdata2)
-						try:
-							c.send(encrypt(cdata2).encode())
-						except:
-							c2.send(encrypt("Sorry, client1 is not connected").encode())
-						data2 += cdata2
-			except:
-				pass
-		else:
-			closed2 = True
-		#cdata = c.recv(1024).decode()
-	print("cdata")
-	print(cdata)
-	print(cdata2)
-	c.close()
-#print(data)
+	while True:
+		c, addr = s.accept()
+		print("got connection from", addr)
+		t1 = threading.Thread(target = clientThread, daemon = True, args=(c,))
+		t1.start()
