@@ -26,9 +26,14 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
-def clientThread(c):
+def clientThread(c, addr):
+	print("got connection from", addr)
 	while True:
-		cdata = decrypt(c.recv(1024).decode())
+		cdata = c.recv(1024)
+		if cdata == (b''):
+			print("Disconnected: ", addr)
+			return
+		cdata = decrypt(cdata.decode())
 		print(cdata)
 
 with socket.socket() as s:
@@ -40,6 +45,6 @@ with socket.socket() as s:
 	s.listen(2)
 	while True:
 		c, addr = s.accept()
-		print("got connection from", addr)
-		t1 = threading.Thread(target = clientThread, daemon = True, args=(c,))
+		t1 = threading.Thread(target = clientThread, daemon = True, args=(c, addr,))
 		t1.start()
+
