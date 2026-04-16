@@ -3,6 +3,28 @@ import socket
 import select
 data = "This is the data: "
 data2 = "This is the data2: "
+def encrypt(string):
+	letters = list(string)
+	enc = ""
+	for let in letters:
+		orded = ord(let)+32
+		while orded > 127:
+			orded = orded - 127
+		enc += str(orded)
+		enc += " "
+	enc = enc[:-1]
+	return enc
+def decrypt(string):
+	nums = string.split(" ")
+	let = ""
+	for i in nums:
+		num = int(i)
+		num -= 32
+		if num < 0:
+			num += 127
+		let += chr(num)
+	return let
+
 with socket.socket() as s:
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	#s.setblocking(False)
@@ -28,13 +50,14 @@ with socket.socket() as s:
 	except:
 		c2 = None
 	print("got connection from",  addr)
-	c.send("Thank you for connecting".encode())
+
+	c.send(encrypt("Thank you for connecting").encode())
 	if c2 != None:
-		c2.send("Thank you for connecting".encode())
+		c2.send(encrypt("Thank you for connecting").encode())
 		print("got conn from", addr2)
-	cdata = c.recv(1024).decode()
+	cdata = decrypt(c.recv(1024).decode())
 	try:
-		cdata2 = c2.recv(1024).decode()
+		decrypt(cdata2 = c2.recv(1024).decode())
 	except:
 		cdata2 = None
 	print("cdata")
@@ -43,14 +66,14 @@ with socket.socket() as s:
 	closed1 = False
 	closed2 = False
 	#for i in range(0, 2):
-	while cdata.strip("\n") != "close" or cdata2.strip("\n") != "close":
+	while cdata.strip("\n") != "close" or (cdata2 != None and cdata2.strip("\n") != "close"):
 		if c2 == None:
 			s.settimeout(0.1)
 			try:
 				c2, addr2 = s.accept()
-				c2.send("Thank you for connecting".encode())
+				c2.send(encrypt("Thank you for connecting").encode())
 				print("got conn from", addr2)
-				cdata2 = c2.recv(1024).decode()
+				cdata2 = decrypt(c2.recv(1024).decode())
 				closed2 = False
 			except:
 				c2 = None
@@ -60,7 +83,7 @@ with socket.socket() as s:
 				readable,_,_ = select.select([c], [],[], 0.1)
 				#print(readable)
 				if c in readable:
-					cdata = c.recv(1024).decode()
+					cdata = decrypt(c.recv(1024).decode())
 					#print("got data")
 					if cdata != None and not closed1:
 						print(cdata)
@@ -77,8 +100,9 @@ with socket.socket() as s:
 				#print(2)
 				#print(readable)
 				if c2 in readable:
-					cdata2 = c2.recv(1024).decode()
-					#print("got data 2")
+					#print("print reading number 2")
+					cdata2 = decrypt(c2.recv(1024).decode())
+					print("got data 2")
 					if cdata2 != None and not closed2:
 						print(cdata2)
 						data2 += cdata2
