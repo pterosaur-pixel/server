@@ -43,7 +43,7 @@ def getMess(inp):
 		while True:
 			print("this works ish")
 			s.send(encrypt(inp).encode())
-			inp = input("Message: ")
+			inp = prompt("Message: ")
 			if inp == "$close":
 				return
 
