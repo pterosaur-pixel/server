@@ -26,25 +26,33 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
-def clientThread(c, addr):
+def clientThread(c, addr, connnections):
 	print("got connection from", addr)
+	lock = threading.Lock()
 	while True:
 		cdata = c.recv(1024)
 		if cdata == (b''):
 			print("Disconnected: ", addr)
+			with lock:
+				connections.remove(c)
 			return
 		cdata = decrypt(cdata.decode())
+		for client in connections:
+			if client != c:
+				client.send(encrypt(cdata).encode())
 		print(cdata)
 
 with socket.socket() as s:
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	print(s.getblocking())
+	connections = []
 	port = 12348
 	s.bind(("", port))
 	print("socket binded")
 	s.listen(2)
 	while True:
 		c, addr = s.accept()
-		t1 = threading.Thread(target = clientThread, daemon = True, args=(c, addr,))
+		connections.append(c)
+		t1 = threading.Thread(target = clientThread, daemon = True, args=(c, addr, connections,))
 		t1.start()
 
