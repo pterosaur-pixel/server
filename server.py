@@ -26,9 +26,20 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
-def clientThread(c, addr, connnections):
+def clientThread(c, addr, connnections, users):
 	print("got connection from", addr)
+	userUE = (decrypt(c.recv(1024).decode()))
+	num = 0
+	for i in range(0, len(connections)):
+		if connections[i] == c:
+			num = i
+			#print(num)
+			break
+	users.append(userUE+ ";" + str(num))
+	print(users)
 	lock = threading.Lock()
+	connected = False
+	connTo = []
 	while True:
 		cdata = c.recv(1024)
 		if cdata == (b''):
@@ -37,14 +48,60 @@ def clientThread(c, addr, connnections):
 				connections.remove(c)
 			return
 		cdata = decrypt(cdata.decode())
-		for client in connections:
-			if client != c:
-				client.send(encrypt(cdata).encode())
+		if cdata == "ls":
+			for user in users:
+				user = user.split(";")
+				user = user[0]
+				if user != userUE:
+					c.send(encrypt(user).encode())
+		elif not connected and cdata == "connect":
+			c.send(encrypt("Input username of client you wish to connect with").encode())
+			userTC = decrypt(c.recv(1024).decode())
+			cTC = []
+			for user in users:
+				user = user.split(";")
+				if user[0] == userTC:
+					cTC = connections[int(user[1])]
+					cTC.send(encrypt(userUE + "%" + "would like to connect with you($a/$d)").encode())
+					try:
+						if decrypt(c.recv(1024).decode()) == "$connection accepted":
+							connected = True
+							connTo = cTC
+						break;
+					except:
+						c.send(encrypt("connection failed").encode())
+		elif connected and cdata == "connect":
+			c.send(encrypt("already connected").encode())
+		if "$a/$d" in cdata:
+			print("a/d")
+		elif not connected and "$a/$d" in cdata:
+			print("Trying to connect")
+			cdata = cdata.split("%")
+			cTC = []
+			for user in users:
+				user = user.split(";")
+				if user[0] == cdata[0]:
+					cTC = connections[int(user[1])]
+					#c.send(encrypt("connection accepted").encode())
+					try:
+						cTC.send(encrypt("$connection accepted").encode())
+						connTo = cTC
+					except:
+						c.send(encrypt("connection failed").encode())
+
+
+		else:
+			if connected:
+				connTo.send(encrypt(cdata).encode())
+			for client in connections:
+				if client != c:
+					client.send(encrypt(cdata).encode())
 		print(cdata)
 
 with socket.socket() as s:
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	print(s.getblocking())
+	users = []
 	connections = []
 	port = 12348
 	s.bind(("", port))
@@ -53,6 +110,6 @@ with socket.socket() as s:
 	while True:
 		c, addr = s.accept()
 		connections.append(c)
-		t1 = threading.Thread(target = clientThread, daemon = True, args=(c, addr, connections,))
+		t1 = threading.Thread(target = clientThread, daemon = True, args=(c, addr, connections, users,))
 		t1.start()
 

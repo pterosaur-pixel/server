@@ -2,9 +2,12 @@ import socket
 import time
 import threading
 import signal
+import random
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
 inp = ""
+userUE = random.randrange(100, 300)
+userUE = str(userUE)
 def encrypt(string):
 	letters = list(string)
 	enc = ""
@@ -41,7 +44,7 @@ def getMess(inp):
 	with patch_stdout():
 	#global inp
 		while True:
-			print("this works ish")
+			#print("this works ish")
 			s.send(encrypt(inp).encode())
 			inp = prompt("Message: ")
 			if inp == "$close":
@@ -51,6 +54,7 @@ def getMess(inp):
 with  socket.socket() as s:
 	port = 12348
 	s.connect(("127.0.0.1", port))
+	s.send(encrypt(userUE).encode())
 	inp = input("Message: ")
 	t1 = threading.Thread(target = getMess, args=(inp,), daemon = True)
 	t1.start()
