@@ -3,6 +3,7 @@ import time
 import threading
 import signal
 import random
+import sys
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
 inp = ""
@@ -50,10 +51,14 @@ def getMess(inp):
 			if inp == "$close":
 				return
 
+if len(sys.argv) == 2:
+	host = sys.argv[1]
+else:
+	host = "127.0.0.1"
 
 with  socket.socket() as s:
 	port = 12348
-	s.connect(("127.0.0.1", port))
+	s.connect((host, port))
 	s.send(encrypt(userUE).encode())
 	inp = input("Message: ")
 	t1 = threading.Thread(target = getMess, args=(inp,), daemon = True)
