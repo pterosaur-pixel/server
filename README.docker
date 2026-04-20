@@ -1,0 +1,5 @@
+To rebuild and restart the docker image:
+
+sudo docker compose down
+sudo docker build -t trlcorp-server
+sudo docker compose up -d

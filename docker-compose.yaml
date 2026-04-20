@@ -1,0 +1,7 @@
+services:
+  trlcorp-server:
+    image: trlcorp-server
+    container_name: trlcorp-server
+    ports:
+      - "12348:12348"
+    restart: unless-stopped
