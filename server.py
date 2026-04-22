@@ -57,6 +57,35 @@ def clientThread(c, addr, connnections, users):
 				user = user[0]
 				if user != userUE:
 					c.send(encrypt(user).encode())
+
+		#This is the guy who wants to connect
+		elif "$connect" in cdata:
+			#print("Is my code even running?") Noto to me later: It really wasn't I forgot the $
+			gotU = False
+			userTC = ""
+			cTC = connections[0]
+			try:
+				userTC = cdata.strip("\n").split(" ")[1]
+				gotU = True
+			except:
+				c.send(encrypt("Invalid syntax. You should do, $connect [username to connect to]").encode())
+
+			#print(gotU)
+			if gotU:
+				for user in users:
+					print(user)
+					if user.split(";")[0] == userTC:
+						cTC = connections[int(user.split(";")[1])]
+						print(cTC)
+						break
+				try:
+					cTC.send(encrypt("Connected to by " + userUE).encode())
+					connected = True
+					connTo.append(cTC)
+				except:
+					c.send(encrypt("REjected").encode())
+
+
 #		elif not connected and cdata == "connect":
 #			c.send(encrypt("Input username of client you wish to connect with").encode())
 #			userTC = decrypt(c.recv(1024).decode())
@@ -95,10 +124,11 @@ def clientThread(c, addr, connnections, users):
 
 		else:
 			if connected:
-				connTo.send(encrypt(cdata).encode())
-			for client in connections:
-				if client != c:
-					client.send(encrypt(cdata).encode())
+				connTo[0].send(encrypt(cdata).encode())
+			else:
+				for client in connections:
+					if client != c:
+						client.send(encrypt(cdata).encode())
 		print(cdata)
 
 with socket.socket() as s:
