@@ -46,6 +46,9 @@ def clientThread(c, addr, connnections, users):
 			print("Disconnected: ", addr)
 			with lock:
 				connections.remove(c)
+				for i in users:
+					if i.split(";")[0] == userUE:
+						users.remove(i)
 			return
 		cdata = decrypt(cdata.decode())
 		if cdata == "ls":
@@ -54,40 +57,40 @@ def clientThread(c, addr, connnections, users):
 				user = user[0]
 				if user != userUE:
 					c.send(encrypt(user).encode())
-		elif not connected and cdata == "connect":
-			c.send(encrypt("Input username of client you wish to connect with").encode())
-			userTC = decrypt(c.recv(1024).decode())
-			cTC = []
-			for user in users:
-				user = user.split(";")
-				if user[0] == userTC:
-					cTC = connections[int(user[1])]
-					cTC.send(encrypt(userUE + "%" + "would like to connect with you($a/$d)").encode())
-					try:
-						if decrypt(c.recv(1024).decode()) == "$connection accepted":
-							connected = True
-							connTo = cTC
-						break;
-					except:
-						c.send(encrypt("connection failed").encode())
-		elif connected and cdata == "connect":
-			c.send(encrypt("already connected").encode())
-		if "$a/$d" in cdata:
-			print("a/d")
-		elif not connected and "$a/$d" in cdata:
-			print("Trying to connect")
-			cdata = cdata.split("%")
-			cTC = []
-			for user in users:
-				user = user.split(";")
-				if user[0] == cdata[0]:
-					cTC = connections[int(user[1])]
+#		elif not connected and cdata == "connect":
+#			c.send(encrypt("Input username of client you wish to connect with").encode())
+#			userTC = decrypt(c.recv(1024).decode())
+#			cTC = []
+#			for user in users:
+#				user = user.split(";")
+#				if user[0] == userTC:
+#					cTC = connections[int(user[1])]
+#					cTC.send(encrypt(userUE + "%" + "would like to connect with you($a/$d)").encode())
+#					try:
+#						if decrypt(c.recv(1024).decode()) == "$connection accepted":
+#							connected = True
+#							connTo = cTC
+#						break;
+#					except:
+#						c.send(encrypt("connection failed").encode())
+#		elif connected and cdata == "connect":
+#			c.send(encrypt("already connected").encode())
+		#elif "$a/$d" in cdata:
+		#	print("a/d")
+#		elif not connected and "$a/$d" in cdata:
+#			print(cdata)
+#			cdata = cdata.split("%")
+#			cTC = []
+#			for user in users:
+#				user = user.split(";")
+#				if user[0] == cdata[0]:
+#					cTC = connections[int(user[1])]
 					#c.send(encrypt("connection accepted").encode())
-					try:
-						cTC.send(encrypt("$connection accepted").encode())
-						connTo = cTC
-					except:
-						c.send(encrypt("connection failed").encode())
+#					try:
+#						cTC.send(encrypt("$connection accepted").encode())
+#						connTo = cTC
+#					except:
+#						c.send(encrypt("connection failed").encode())
 
 
 		else:
