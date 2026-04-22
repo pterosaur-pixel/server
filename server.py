@@ -79,7 +79,7 @@ def clientThread(c, addr, connnections, users):
 						print(cTC)
 						break
 				try:
-					cTC.send(encrypt("Connected to by " + userUE).encode())
+					cTC.send(encrypt(userUE+" connected to you").encode())
 					connected = True
 					connTo.append(cTC)
 				except:

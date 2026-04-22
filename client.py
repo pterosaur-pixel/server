@@ -33,18 +33,26 @@ def decrypt(string):
 	return let
 
 def listenTo(s):
+	connected = False
 	#with patch_stdout():
 	while True:
 		s.settimeout(0.5)
 		try:
-#			recData = decrypt(s.recv(1024).decode())
+			recData = decrypt(s.recv(1024).decode())
 #			s.send(encrypt("recieved").encode())
 #			print("hello???")
 #			if "$a/$d" in recData:
 #				s.send(encrypt(recData))
 #			elif recData == "$connection accepted":
 #				s.send(encrypt(recData))
-			print(decrypt(s.recv(1024).decode()), flush = True)
+			print("recData")
+			print(recData)
+			if " connected to you" in recData and not connected:
+				data2 = recData.split(" ")[0]
+				inp = "$connect " + data2
+				s.send(encrypt(inp).encode())
+				connected = True
+#			print(decrypt(s.recv(1024).decode()), flush = True)
 		except:
 			pass
 
