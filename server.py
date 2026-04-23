@@ -61,41 +61,91 @@ def clientThread(c, addr, connnections, users):
 					userL += " "
 			c.send(encrypt(userL).encode())
 
-		#This is the guy who wants to connect
+		#Snake is asking to connect
 		elif "$connect" in cdata:
-			#print("Is my code even running?") Noto to me later: It really wasn't I forgot the $
 			gotU = False
 			userTC = ""
 			cTC = connections[0]
 			try:
-				userTC = cdata.strip("\n").split(" ")[1]
+				userTC = cdata.strip("\n").split(" ")[2]
 				gotU = True
 			except:
 				c.send(encrypt("Invalid syntax. You should do, $connect [username to connect to]").encode())
-
-			#print(gotU)
+			#Find client to connect to from username
 			if gotU:
+				foundCT = False
 				for user in users:
-					print(user)
 					if user.split(";")[0] == userTC:
 						cTC = connections[int(user.split(";")[1])]
 						print(cTC)
+						foundCT = True
 						break
-				try:
-					cTC.send(encrypt(userUE+" wants to connect to you ($a/$d)").encode())
-					#connected = True
-					#connTo.append(cTC)
-				except:
-					c.send(encrypt("REjected").encode())
+				#Ask for connection from frog
+				if not foundCT:
+					c.send(encrypt("connection failed1").encode())
+				else:
+					try:
+						cTC.send(encrypt(userUE+" wants to connect to you ($a/$d)").encode())
+					except:
+						c.send(encrypt("REjected").encode())
 
-		#This is the guy getting connected to
+		#If frog accepts
 		elif "$a" in cdata:
 			print(cdata)
-			d2 = cdata.split("%")[1]
+			d2 = ""
+			try:
+				d2 = cdata.split(" ")[2]
+			except:
+				c.send(encrypt("incorrect syntax").encode())
+			#find username accepted
 			print(d2)
 			print("connecting to " + d2)
+			ctc = connections[0]
+			foundCT = False
+			#find cleint from username
+			for user in users:
+				if user.split(";")[0] == d2:
+					ctc = connections[int(user.split(";")[1])]
+					print(ctc)
+					foundCT = True
+					break
+			#Tell snake the he accepts
+			if not foundCT:
+				c.send(encrypt("connection failed2").encode())
+			else:
+				try:
+					connected = True
+					try:
+						connTo[0] = ctc
+					except:
+						connTo.append(ctc)
+					ctc.send(encrypt("Connection accepted#@!" + userUE).encode())
+				except:
+					c.send(encrypt("connection failed3").encode())
 
-
+		#Snake sends this to the server to let it know about acceptance
+		elif "Connection accepted#@!" in cdata:
+			#find username
+			d2 = cdata.split("!")[1]
+			ctLog = connections[0]
+			foundCT = False
+			#find client from username
+			for user in users:
+				if user.split(";")[0] == d2:
+					foundCT = True
+					ctLog = connections[int(user.split(";")[1])]
+					break
+			if not foundCT:
+				c.send(encrypt("connection failed").encode())
+			#Add username to connected log
+			else:
+				try:
+					connTo[0] = ctLog
+				except:
+					connTo.append(ctLog)
+				print("ConnTO: ")
+				print(connTo[0])
+				connected == True
 
 
 
@@ -104,7 +154,12 @@ def clientThread(c, addr, connnections, users):
 
 		else:
 			if connected:
-				connTo[0].send(encrypt(cdata).encode())
+				try:
+					connTo[0].send(encrypt(cdata).encode())
+				except:
+					c.send(encrypt("client disconnected").encode())
+					connected = False
+					connTo[0] = connections[0]
 			else:
 				for client in connections:
 					if client != c:
