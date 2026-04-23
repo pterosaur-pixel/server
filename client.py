@@ -7,8 +7,9 @@ import sys
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
 inp = ""
-userUE = random.randrange(100, 300)
-userUE = str(userUE)
+#userUE = random.randrange(100, 300)
+#userUE = str(userUE)
+userUE = prompt("Input username: ")
 def encrypt(string):
 	letters = list(string)
 	enc = ""
@@ -32,7 +33,7 @@ def decrypt(string):
 		let += chr(num)
 	return let
 
-def listenTo(s):
+def listenTo(s, t1):
 	connected = False
 	#with patch_stdout():
 	while True:
@@ -47,22 +48,26 @@ def listenTo(s):
 #				s.send(encrypt(recData))
 			print("recData")
 			print(recData)
-			if " connected to you" in recData and not connected:
-				data2 = recData.split(" ")[0]
-				inp = "$connect " + data2
-				s.send(encrypt(inp).encode())
-				connected = True
+			#if " wants to connect to you ($a/$d)" in recData and not connected:
+				#data2 = recData.split(" ")[0]
+				#inp = "$connect " + data2
+				#t1.join()
+				#inp = prompt("$a/$d: ")
+				#t1.start()
+				#s.send(encrypt(inp+"%" + data2).encode())
+				#connected = True
 #			print(decrypt(s.recv(1024).decode()), flush = True)
 		except:
 			pass
 
-def getMess(inp):
+def getMess():
 	with patch_stdout():
 	#global inp
 		while True:
 			#print("this works ish")
+			inp = prompt(userUE + ": ")
+			inp = userUE + ": " + inp
 			s.send(encrypt(inp).encode())
-			inp = prompt("Message: ")
 			if inp == "$close":
 				return
 
@@ -75,10 +80,10 @@ with  socket.socket() as s:
 	port = 12348
 	s.connect((host, port))
 	s.send(encrypt(userUE).encode())
-	inp = input("Message: ")
-	t1 = threading.Thread(target = getMess, args=(inp,), daemon = True)
+	#inp = input("Message: ")
+	t1 = threading.Thread(target = getMess, args=(), daemon = True)
 	t1.start()
-	t2 = threading.Thread(target = listenTo, args = (s,), daemon = True)
+	t2 = threading.Thread(target = listenTo, args = (s, t1,), daemon = True)
 	t2.start()
 	#while inp != "$close":
 	#	s.settimeout(0.5)
@@ -91,3 +96,4 @@ with  socket.socket() as s:
 	t1.join()
 	t2.join()
 	s.send(encrypt("close").encode())
+

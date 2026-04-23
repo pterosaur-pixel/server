@@ -51,12 +51,15 @@ def clientThread(c, addr, connnections, users):
 						users.remove(i)
 			return
 		cdata = decrypt(cdata.decode())
-		if cdata == "ls":
+		if "$ls" in cdata:
+			userL = ""
 			for user in users:
 				user = user.split(";")
 				user = user[0]
 				if user != userUE:
-					c.send(encrypt(user).encode())
+					userL += user
+					userL += " "
+			c.send(encrypt(userL).encode())
 
 		#This is the guy who wants to connect
 		elif "$connect" in cdata:
@@ -79,47 +82,24 @@ def clientThread(c, addr, connnections, users):
 						print(cTC)
 						break
 				try:
-					cTC.send(encrypt(userUE+" connected to you").encode())
-					connected = True
-					connTo.append(cTC)
+					cTC.send(encrypt(userUE+" wants to connect to you ($a/$d)").encode())
+					#connected = True
+					#connTo.append(cTC)
 				except:
 					c.send(encrypt("REjected").encode())
 
+		#This is the guy getting connected to
+		elif "$a" in cdata:
+			print(cdata)
+			d2 = cdata.split("%")[1]
+			print(d2)
+			print("connecting to " + d2)
 
-#		elif not connected and cdata == "connect":
-#			c.send(encrypt("Input username of client you wish to connect with").encode())
-#			userTC = decrypt(c.recv(1024).decode())
-#			cTC = []
-#			for user in users:
-#				user = user.split(";")
-#				if user[0] == userTC:
-#					cTC = connections[int(user[1])]
-#					cTC.send(encrypt(userUE + "%" + "would like to connect with you($a/$d)").encode())
-#					try:
-#						if decrypt(c.recv(1024).decode()) == "$connection accepted":
-#							connected = True
-#							connTo = cTC
-#						break;
-#					except:
-#						c.send(encrypt("connection failed").encode())
-#		elif connected and cdata == "connect":
-#			c.send(encrypt("already connected").encode())
-		#elif "$a/$d" in cdata:
-		#	print("a/d")
-#		elif not connected and "$a/$d" in cdata:
-#			print(cdata)
-#			cdata = cdata.split("%")
-#			cTC = []
-#			for user in users:
-#				user = user.split(";")
-#				if user[0] == cdata[0]:
-#					cTC = connections[int(user[1])]
-					#c.send(encrypt("connection accepted").encode())
-#					try:
-#						cTC.send(encrypt("$connection accepted").encode())
-#						connTo = cTC
-#					except:
-#						c.send(encrypt("connection failed").encode())
+
+
+
+
+
 
 
 		else:
@@ -130,6 +110,7 @@ def clientThread(c, addr, connnections, users):
 					if client != c:
 						client.send(encrypt(cdata).encode())
 		print(cdata)
+
 
 with socket.socket() as s:
 	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
