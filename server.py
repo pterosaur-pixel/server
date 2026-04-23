@@ -77,7 +77,7 @@ def clientThread(c, addr, connnections, users):
 				for user in users:
 					if user.split(";")[0] == userTC:
 						cTC = connections[int(user.split(";")[1])]
-						print(cTC)
+#						print(cTC)
 						foundCT = True
 						break
 				#Ask for connection from frog
@@ -90,8 +90,8 @@ def clientThread(c, addr, connnections, users):
 						c.send(encrypt("REjected").encode())
 
 		#If frog accepts
-		elif "$a" in cdata:
-			print(cdata)
+		elif "$a" in cdata and not connected:
+#			print(cdata)
 			d2 = ""
 			try:
 				d2 = cdata.split(" ")[2]
@@ -106,7 +106,7 @@ def clientThread(c, addr, connnections, users):
 			for user in users:
 				if user.split(";")[0] == d2:
 					ctc = connections[int(user.split(";")[1])]
-					print(ctc)
+#					print(ctc)
 					foundCT = True
 					break
 			#Tell snake the he accepts
@@ -124,7 +124,7 @@ def clientThread(c, addr, connnections, users):
 					c.send(encrypt("connection failed3").encode())
 
 		#Snake sends this to the server to let it know about acceptance
-		elif "Connection accepted#@!" in cdata:
+		elif "Connection accepted#@!" in cdata and not connected:
 			#find username
 			d2 = cdata.split("!")[1]
 			ctLog = connections[0]
@@ -139,15 +139,16 @@ def clientThread(c, addr, connnections, users):
 				c.send(encrypt("connection failed").encode())
 			#Add username to connected log
 			else:
+#				print("ctLog"+userUE)
+#				print(ctLog)
 				try:
 					connTo[0] = ctLog
 				except:
 					connTo.append(ctLog)
 				print("ConnTO: ")
 				print(connTo[0])
-				connected == True
-
-
+				connected = True
+				c.send(encrypt("connection success").encode())
 
 
 
@@ -155,6 +156,7 @@ def clientThread(c, addr, connnections, users):
 		else:
 			if connected:
 				try:
+					print("Attempt to send to one"+userUE)
 					connTo[0].send(encrypt(cdata).encode())
 				except:
 					c.send(encrypt("client disconnected").encode())
