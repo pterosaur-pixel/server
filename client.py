@@ -40,9 +40,18 @@ def listenTo(s, t1):
 		s.settimeout(0.5)
 		try:
 			recData = decrypt(s.recv(1024).decode())
-			print(recData)
+			#print(recData)
 			if "Connection accepted#@!" in recData:
+#				print("Con acc")
 				s.send(encrypt(recData).encode())
+			elif "$dyr" in recData:
+				s.send(encrypt(recData).encode())
+			elif "$yourRequest" in recData:
+				#print("sending yrq555")
+				#print(recData)
+				s.send(encrypt(recData).encode())
+			else:
+				print(recData)
 		except:
 			pass
 
