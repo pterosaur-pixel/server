@@ -201,11 +201,33 @@ def clientThread(c, addr, connnections, users):
 			#print(connections)
 
 
+		elif "$disconnect" in cdata and not "$disconnected" in cdata:
+			print("disconnecting")
+			mes1 = "$disconnected"
+			try:
+				connTo[0].send(encrypt("$disconnected").encode())
+				connected = False
+				ctrequested = False
+				requested = False
+				connTo[0] = None
+				c.send(encrypt("succesful disconnect").encode())
+			except:
+				c.send(encrypt("something went wrong").encode())
+		elif "$disconnected" in cdata:
+			#print("This section is running")
+			c.send(encrypt("Thanks for talking, friend. See you later!").encode())
+			c.send(encrypt("client disconnected").encode())
+			connected = False
+			ctrequested = False
+			requested = False
+			connTo[0] = None
+
 		else:
 			if connected:
 				try:
 					connTo[0].send(encrypt(cdata).encode())
 				except:
+					#print("??????????")
 					c.send(encrypt("client disconnected").encode())
 					connected = False
 					connTo[0] = connections[0]

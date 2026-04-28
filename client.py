@@ -52,6 +52,9 @@ def listenTo(s, t1):
 				s.send(encrypt(recData).encode())
 			elif "$closed" in recData:
 				s.send(encrypt(recData).encode())
+			elif  "$disconnected" in recData:
+				#print("disconnected sent!")
+				s.send(encrypt(recData).encode())
 			else:
 				print(recData)
 		except:
