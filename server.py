@@ -41,6 +41,7 @@ def clientThread(c, addr, connnections, users):
 	connTo = []
 	ctrequested = False
 	requested = False
+	req2 = ""
 	while True:
 		cdata = c.recv(1024)
 		if cdata == (b''):
@@ -75,6 +76,7 @@ def clientThread(c, addr, connnections, users):
 				c.send(encrypt("Invalid syntax. You should do, $connect [username to connect to]").encode())
 			#Find client to connect to from username
 			if gotU:
+				req2 = gotU
 				foundCT = False
 				for user in users:
 					if user.split(";")[0] == userTC:
@@ -117,36 +119,39 @@ def clientThread(c, addr, connnections, users):
 				try:
 					ctc.send(encrypt("$dyr " + userUE).encode())
 				except:
-					c.send(encrypt("client isn't connected"))
+					c.send(encrypt("client isn't connected").encode())
 		#snake recieves frog's acceptance
 		elif "$dyr" in cdata:
 			print("$dyr is in the cdata")
-			d2 = cdata.split(" ")[1]
-			ctc = connections[0]
-			ftc = False
-			for user in users:
-				if user.split(";")[0] == d2:
-					ctc = connections[int(user.split(";")[1])]
-					ftc = True
-					break
-			print("user" +d2)
-			#Telling frog if he did request a connection
-			if ftc:
-				try:
-					if requested:
-						req = "TRUE"
-						connected = True
-						try:
-							connTo[0] = ctc
-						except:
-							connTo.append(ctc)
-						c.send(encrypt("Connection success!").encode())
-					else:
-						req = "FALSE"
-					req += "$yourRequest"
-					ctc.send(encrypt(req).encode())
-				except:
-					print("Something went wrong")
+			if cdata.split(":")[0] == req2:
+				d2 = cdata.split(" ")[1]
+				ctc = connections[0]
+				ftc = False
+				for user in users:
+					if user.split(";")[0] == d2:
+						ctc = connections[int(user.split(";")[1])]
+						ftc = True
+						break
+				print("user" +d2)
+				#Telling frog if he did request a connection
+				if ftc:
+					try:
+						if requested:
+							req = "TRUE"
+							connected = True
+							try:
+								connTo[0] = ctc
+							except:
+								connTo.append(ctc)
+							c.send(encrypt("Connection success!").encode())
+						else:
+							req = "FALSE"
+						req += "$yourRequest"
+						ctc.send(encrypt(req).encode())
+					except:
+						print("Something went wrong")
+			else:
+				c.send(encrypt("FALSE$yourRequest").encode())
 		#Frog recieves connection verification
 		elif "$yourRequest" in cdata:
 			print("Request noted")
@@ -188,6 +193,7 @@ def clientThread(c, addr, connnections, users):
 					connected = False
 					ctrequested = False
 					requested = False
+					req2 = ""
 					c.send(encrypt(username[0] + " disconnected").encode())
 					connTo[0] = None
 			except:
@@ -209,6 +215,7 @@ def clientThread(c, addr, connnections, users):
 				connected = False
 				ctrequested = False
 				requested = False
+				req2 = ""
 				connTo[0] = None
 				c.send(encrypt("succesful disconnect").encode())
 			except:
@@ -220,6 +227,7 @@ def clientThread(c, addr, connnections, users):
 			connected = False
 			ctrequested = False
 			requested = False
+			req2 = ""
 			connTo[0] = None
 
 		else:
