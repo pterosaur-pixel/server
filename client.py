@@ -50,6 +50,8 @@ def listenTo(s, t1):
 				#print("sending yrq555")
 				#print(recData)
 				s.send(encrypt(recData).encode())
+			elif "$closed" in recData:
+				s.send(encrypt(recData).encode())
 			else:
 				print(recData)
 		except:
@@ -72,23 +74,25 @@ else:
 	host = "127.0.0.1"
 
 with  socket.socket() as s:
-	port = 12348
-	s.connect((host, port))
-	s.send(encrypt(userUE).encode())
-	#inp = input("Message: ")
-	t1 = threading.Thread(target = getMess, args=(), daemon = True)
-	t1.start()
-	t2 = threading.Thread(target = listenTo, args = (s, t1,), daemon = True)
-	t2.start()
-	#while inp != "$close":
-	#	s.settimeout(0.5)
-		#try:
-			#print(decrypt(s.recv(1024).decode()))
-			#inp = input("Message")
-		#except:
-		#	pass
-	#time.sleep(0.25)
-	t1.join()
-	t2.join()
-	s.send(encrypt("close").encode())
+	try:
+		port = 12348
+		s.connect((host, port))
+		s.send(encrypt(userUE).encode())
+		#inp = input("Message: ")
+		t1 = threading.Thread(target = getMess, args=(), daemon = True)
+		t1.start()
+		t2 = threading.Thread(target = listenTo, args = (s, t1,), daemon = True)
+		t2.start()
+		#while inp != "$close":
+		#	s.settimeout(0.5)
+			#try:
+				#print(decrypt(s.recv(1024).decode()))
+				#inp = input("Message")
+			#except:
+			#	pass
+		#time.sleep(0.25)
+		t1.join()
+		t2.join()
+	finally:
+		s.send(encrypt("$close").encode())
 
