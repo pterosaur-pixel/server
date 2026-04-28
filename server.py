@@ -76,7 +76,8 @@ def clientThread(c, addr, connnections, users):
 				c.send(encrypt("Invalid syntax. You should do, $connect [username to connect to]").encode())
 			#Find client to connect to from username
 			if gotU:
-				req2 = gotU
+				req2 = userTC
+				print("req2"+req2)
 				foundCT = False
 				for user in users:
 					if user.split(";")[0] == userTC:
@@ -123,7 +124,8 @@ def clientThread(c, addr, connnections, users):
 		#snake recieves frog's acceptance
 		elif "$dyr" in cdata:
 			print("$dyr is in the cdata")
-			if cdata.split(":")[0] == req2:
+			print(cdata.split(" ")[1])
+			if cdata.split(" ")[1] == req2:
 				d2 = cdata.split(" ")[1]
 				ctc = connections[0]
 				ftc = False
