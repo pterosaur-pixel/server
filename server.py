@@ -251,10 +251,12 @@ def clientThread(c, addr, connnections, users):
 		elif cdata == "$close":
 			print("Client closed")
 			mes1 = "$closed" + userUE
-			#for user in users:
-				#if user.split(";")[0] == userUE:
-					#users.remove(user)
-					#break
+			counter2 = 0
+			for user in users:
+				if user.split(";")[0] == userUE:
+					users.pop(counter2)
+					break
+				counter2 += 1
 			for i in connections:
 				try:
 					i.send(encrypt(mes1).encode())
@@ -276,22 +278,13 @@ def clientThread(c, addr, connnections, users):
 					connTo[0] = None
 			except:
 				pass
-			for user in users:
-				if user.split(";")[0] == username[0]:
-					print("hello? removing the user")
-					#ctr = user.split(";")[1]
-					#connections.remove(ctr)
-					try:
-						users.remove(user)
-					except:
-						time.sleep(0.1)
-						try:
-							users.remove(user)
-						except:
-							pass
-					break
-			#print(userUE)
-			#print(connections)
+#			counter = 0
+#			for user in users:
+#				if user.split(";")[0] == username[0]:
+#					print("hello? removing the user")
+#					users.pop(counter)
+#					break
+#				counter += 1
 
 
 		elif "$disconnect" in cdata and not "$disconnected" in cdata:
