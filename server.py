@@ -2,6 +2,7 @@ import ipaddress
 import threading
 import socket
 import select
+import time
 data = "This is the data: "
 data2 = "This is the data2: "
 def encrypt(string):
@@ -19,11 +20,14 @@ def decrypt(string):
 	nums = string.split(" ")
 	let = ""
 	for i in nums:
-		num = int(i)
-		num -= 32
-		if num < 0:
-			num += 127
-		let += chr(num)
+		try:
+			num = int(i)
+			num -= 32
+			if num < 0:
+				num += 127
+			let += chr(num)
+		except:
+			print("decryption failed")
 	return let
 
 def clientThread(c, addr, connnections, users):
@@ -64,6 +68,18 @@ def clientThread(c, addr, connnections, users):
 			c.send(encrypt(userL).encode())
 
 		#Snake is asking to connect
+		elif "$help" in cdata:
+			c.send(encrypt("$connect [username to connect to] - connects").encode())
+			time.sleep(0.1)
+			c.send(encrypt("$ls - list people on the server").encode())
+			time.sleep(0.1)
+			c.send(encrypt("$a [username which asked for connection] - accepts someone who asked for a connection").encode())
+			time.sleep(0.1)
+			c.send(encrypt("$decline - declines someone who asked for a connection").encode())
+			time.sleep(0.1)
+			c.send(encrypt("$disconnect - disconnects you from someone who you are connected to").encode())
+			time.sleep(0.1)
+			c.send(encrypt("$help - shows this list").encode())
 		elif "$connect" in cdata and not connected:
 			requested = True
 			gotU = False

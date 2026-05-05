@@ -13,7 +13,9 @@ foundUserUE = False
 #Right now it doesn't chack to see if there already is a username that is the same as it
 while not foundUserUE:
 	userUE = prompt("Input username: ")
-	if userUE.strip() == ""  or "$" in userUE:
+	if " " in userUE:
+		print("Invalid username. Remember, you can not have spaces in your username")
+	elif userUE.strip() == ""  or "$" in userUE:
 		print("Invalid username. Remember, you can not have a blank username or have a $ in your username")
 	else:
 		foundUserUE = True
