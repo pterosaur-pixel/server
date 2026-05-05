@@ -85,7 +85,7 @@ def getMess():
 if len(sys.argv) == 2:
 	host = sys.argv[1]
 else:
-	host = "127.0.0.1"
+	host = "messaging.trlcorp.dynamic-dns.net"
 
 with  socket.socket() as s:
 	try:
