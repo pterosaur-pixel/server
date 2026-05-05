@@ -64,7 +64,7 @@ def clientThread(c, addr, connnections, users):
 			c.send(encrypt(userL).encode())
 
 		#Snake is asking to connect
-		elif "$connect" in cdata:
+		elif "$connect" in cdata and not connected:
 			requested = True
 			gotU = False
 			userTC = ""
