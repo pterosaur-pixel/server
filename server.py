@@ -89,14 +89,57 @@ def clientThread(c, addr, connnections, users):
 					c.send(encrypt("connection failed1").encode())
 				else:
 					try:
-						cTC.send(encrypt(userUE+" wants to connect to you ($a/$d)").encode())
+						cTC.send(encrypt(userUE+" wants to connect to you ($a/$decline)").encode())
 					except:
 						c.send(encrypt("REjected").encode())
 
 		#If frog declines:
 #		elif "d" in cdata and not connected:
-
+									#Make username not allowed to have $ in it!!!!!
 		#If frog accepts
+		elif "$a" in cdata and connected:
+			print("It thinks that it already is connected")
+			try:
+				dat = cdata.split("$a ")[1]
+			except:
+				c.send(encrypt("Incorrect Syntax").encode())
+			c.send(encrypt("You are already connected to a client").encode())
+			ctd = connections[0]
+			for user in users:
+				if user.split(";")[0] == dat:
+					ctd = connections[int(user.split(";")[1])]
+			try:
+				ctd.send(encrypt("$#@@@%%%$#client doesn't want to connect").encode())
+			except:
+				c.send(encrypt("Client does not exist").encode())
+		elif "$decline" in cdata:
+			print("It thinks frog said $d")
+			print(cdata)
+			dat2 = ""
+			try:
+				dat2 = cdata.split(" ")[2]
+			except:
+				c.send(encrypt("Incorrect Syntax").encode())
+			ctd = connections[0]
+			for user in users:
+				if user.split(";")[0] == dat2:
+					ctd = connections[int(user.split(";")[1])]
+			try:
+				ctd.send(encrypt("$#@@@%%%$#client doesn't want to connect").encode())
+			except:
+				c.send(encrypt("Client does not exist").encode())
+		elif "$#@@@%%%$#client doesn't want to connect" in cdata:
+			print("I KNOW THAT THE CLIENT DECLINED"+userUE)
+			connected = False
+			ctrequested = False
+			requested = False
+			req2 = ""
+			try:
+				connTo[0] = None
+			except:
+				pass
+			c.send(encrypt("Connection declined").encode())
+
 		elif "$a" in cdata and not connected:
 			d2 = ""
 			try:
@@ -172,6 +215,15 @@ def clientThread(c, addr, connnections, users):
 					c.send(encrypt("Connection successful").encode())
 				except:
 					c.send(encrypt("connection failed3").encode())
+			else:
+				connected = False
+				ctrequested = False
+				requested = False
+				req2 = ""
+				try:
+					connTo[0] = None
+				except:
+					pass
 
 			ctrequested = False
 			cdata += "fish"

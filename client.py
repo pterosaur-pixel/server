@@ -55,6 +55,8 @@ def listenTo(s, t1):
 			elif  "$disconnected" in recData:
 				#print("disconnected sent!")
 				s.send(encrypt(recData).encode())
+			elif "$#@@@%%%$#client doesn't want to connect" in recData:
+				s.send(encrypt(recData).encode())
 			else:
 				print(recData)
 		except:
