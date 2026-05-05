@@ -247,6 +247,10 @@ def clientThread(c, addr, connnections, users):
 		elif cdata == "$close":
 			print("Client closed")
 			mes1 = "$closed" + userUE
+			#for user in users:
+				#if user.split(";")[0] == userUE:
+					#users.remove(user)
+					#break
 			for i in connections:
 				try:
 					i.send(encrypt(mes1).encode())
@@ -270,9 +274,11 @@ def clientThread(c, addr, connnections, users):
 				pass
 			for user in users:
 				if user.split(";")[0] == username[0]:
+					print("hello? removing the user")
 					#ctr = user.split(";")[1]
 					#connections.remove(ctr)
 					users.remove(user)
+					break
 			#print(userUE)
 			#print(connections)
 
