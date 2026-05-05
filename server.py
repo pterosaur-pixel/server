@@ -115,19 +115,23 @@ def clientThread(c, addr, connnections, users):
 		#If frog accepts
 		elif "$a" in cdata and connected:
 			print("It thinks that it already is connected")
+			cont = False
 			try:
 				dat = cdata.split("$a ")[1]
+				cont = True
 			except:
 				c.send(encrypt("Incorrect Syntax").encode())
-			c.send(encrypt("You are already connected to a client").encode())
-			ctd = connections[0]
-			for user in users:
-				if user.split(";")[0] == dat:
-					ctd = connections[int(user.split(";")[1])]
-			try:
-				ctd.send(encrypt("$#@@@%%%$#client doesn't want to connect").encode())
-			except:
-				c.send(encrypt("Client does not exist").encode())
+			if cont:
+				c.send(encrypt("You are already connected to a client").encode())
+				ctd = connections[0]
+				for user in users:
+					if user.split(";")[0] == dat:
+						ctd = connections[int(user.split(";")[1])]
+				try:
+					if req2 != dat:
+						ctd.send(encrypt("$#@@@%%%$#client doesn't want to connect").encode())
+				except:
+					c.send(encrypt("Client does not exist").encode())
 		elif "$decline" in cdata:
 			print("It thinks frog said $d")
 			print(cdata)
@@ -277,7 +281,14 @@ def clientThread(c, addr, connnections, users):
 					print("hello? removing the user")
 					#ctr = user.split(";")[1]
 					#connections.remove(ctr)
-					users.remove(user)
+					try:
+						users.remove(user)
+					except:
+						time.sleep(0.1)
+						try:
+							users.remove(user)
+						except:
+							pass
 					break
 			#print(userUE)
 			#print(connections)
