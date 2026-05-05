@@ -9,7 +9,14 @@ from prompt_toolkit.patch_stdout import patch_stdout
 inp = ""
 #userUE = random.randrange(100, 300)
 #userUE = str(userUE)
-userUE = prompt("Input username: ")
+foundUserUE = False
+#Right now it doesn't chack to see if there already is a username that is the same as it
+while not foundUserUE:
+	userUE = prompt("Input username: ")
+	if userUE.strip() == ""  or "$" in userUE:
+		print("Invalid username. Remember, you can not have a blank username or have a $ in your username")
+	else:
+		foundUserUE = True
 def encrypt(string):
 	letters = list(string)
 	enc = ""
