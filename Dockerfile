@@ -1,8 +1,4 @@
-FROM python:slim-bookworm
+FROM python-to-exe
 
-WORKDIR /app
-
-COPY server.py /app
-RUN apt update
-
-CMD [ "python3", "server.py" ]
+ENV MAIN_PY=client.py
+RUN /pip-install.sh prompt_toolkit
